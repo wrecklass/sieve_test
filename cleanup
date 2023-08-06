@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "Removing executables and class files"
+rm -f ./*.exe ./*.class ./*.o ./gsieve2* ./gosieve2* ./fsieve2* ./sieve2 ./rsieve2* ./cosieve*

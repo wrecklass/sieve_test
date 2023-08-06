@@ -1,0 +1,13 @@
+tags
+*.exe
+*.o
+*.out
+*.class
+a.out
+gsieve2*
+gosieve2*
+cosieve2*
+rsieve2*
+fsieve2
+rsieve2
+.vscode

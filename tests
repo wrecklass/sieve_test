@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+
+clear
+
+echo "This test runs a standard test for the first one million prime numbers using the Sieve of"
+echo "Eratosthanese. It then outputs the number of primes that were found and the value of the"
+echo "largest prime number that was discovered."
+echo ""
+echo "This benchmark tests the relative performance of each language's interpreter or compiler for"
+echo "performing basic integer math."
+echo ""
+echo "Note the following are expected results from the Sieve test:"
+echo "  Total Primes  = 1000000"
+echo "  Max Prime = 15485863"
+echo "If any program reports a different value it may mean that code has been modified or the relevant"
+echo "interpreter/compiler is defective on this system."
+echo
+
+./cleanup
+echo
+
+OS=${OSTYPE-cygwin}
+SUF=""
+if [ "$OS" = "cygwin" ]
+then
+  SUF=".exe"
+  GOCACHE="c:/users/smartin/appdata/local/go-build"
+fi
+
+echo $OS
+echo "Suffix: $SUF"
+
+# Check for the various compilers/interpreters
+# If we don't find one, we won't run that test
+C=$(command -v c++)
+CLC=$(command -v cl.exe)
+CSC=$(command -v csc)
+FORTRAN=$(command -v gfortran)
+GCC=$(command -v gcc)
+GO=$(command -v go)
+GROOVY=$(command -v groovy)
+JAVAC=$(command -v javac)
+PERL=$(command -v perl)
+PHP=$(command -v php)
+PYTHON=$(command -v python)
+RUBY=$(command -v ruby)
+RUST=$(command -v rustc)
+
+if [ -z "$CSC" ]
+then
+  echo "No C# compiler, skipping"
+  echo
+else
+  echo "Compiling C# source."
+  "$CSC" /out:cssieve2${SUF} /o sieve2.cs > /dev/null
+fi
+
+if [ -z "$JAVAC" ]
+then
+  echo "No Java compiler, skipping"
+  echo
+else
+  echo "Compiling Java source."
+  "$JAVAC" sieve2.java > /dev/null
+fi
+
+if [ -z "$C" ]
+then
+  if [ -z "$GCC" ]
+  then
+    echo "No gcc compiler, skipping"
+    echo
+  else
+    echo "Compiling gcc source."
+    "$GCC" -O4 -o gsieve2${SUF} sieve2.cpp &> /dev/null
+  fi
+else
+  echo "Compiling gcc (c++) source"
+  "$C" -O2 -o gsieve2${SUF} sieve2.cpp &> /dev/null
+fi
+
+if [ -z "$GO" ]
+then
+  echo "No Go compiler, skipping."
+  echo
+else
+  echo "Compiling Go source."
+  GOCACHE="$GOCACHE" "$GO" build -o gosieve2${SUF} sieve2.go
+fi
+
+if [ -z "$FORTRAN" ]
+then
+  echo "No Fortran compiler, skipping."
+  echo
+else
+  echo "Compiling Fortran source."
+  "$FORTRAN" -ffree-form -O4 sieve2.f -o fsieve2${SUF}
+fi
+
+if [ -z "$RUST" ]
+then
+  echo "No Rust compiler, skipping."
+  echo
+else
+  echo "Compiling Rust source."
+  "$RUST" -O sieve2.rs -o rsieve2${SUF}
+fi
+
+echo "Done compiling"
+echo "Running tests:"
+echo ""
+
+if [ -n "$PHP" ]
+then
+  printf "Timing "
+  time "$PHP" sieve2.php
+  echo ""
+fi
+
+if [ -n "$PERL" ]
+then
+  printf "Timing "
+  time "$PERL" sieve2.pl
+  echo ""
+fi
+
+if [ -n "$PYTHON" ]
+then
+  printf "Timing "
+  time "$PYTHON" sieve2.py
+  echo ""
+fi
+
+if [ -n "$RUBY" ]
+then
+  printf "Timing "
+  time "$RUBY" sieve2.rb
+  echo ""
+fi
+
+if [ -n "$GROOVY" ]
+then
+  printf "Timing "
+  # Groovy is throwing some warnings against openjdk
+  time groovy sieve2 2> /dev/null
+  echo ""
+fi
+
+if [ -f "./sieve2.class" ]
+then
+  printf "Timing "
+  time java -cp . sieve2
+  echo ""
+fi
+
+if [ -x "./gsieve2${SUF}" ]
+then
+  printf "Timing "
+  time ./gsieve2${SUF}
+  echo ""
+fi
+
+if [ -x "./cssieve2${SUF}" ]
+then
+  printf "Timing "
+  time ./cssieve2${SUF}
+  echo ""
+fi
+
+if [ -x "./gosieve2${SUF}" ]
+then
+  printf "Timing "
+  time ./gosieve2${SUF}
+  echo ""
+fi
+
+if [ -x "./fsieve2${SUF}" ]
+then
+  printf "Timing "
+  time ./fsieve2${SUF}
+fi
+
+if [ -x "./rsieve2${SUF}" ]
+then
+  printf "\nTiming "
+  time ./rsieve2${SUF}
+fi
+
